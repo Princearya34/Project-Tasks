@@ -1,27 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HelloController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\TaskController;
 
+// Home route
 Route::get('/', function () {
     return view('welcome');
 });
 
-
-use App\Http\Controllers\HelloController;
-
+// Hello route
 Route::get('/hello', [HelloController::class, 'index']);
 
-use App\Http\Controllers\UserController;
-
+// User routes
 Route::resource('users', UserController::class);
 
-
-
-Route::get('/users', [UserController::class, 'index'])->name('users.index');
-Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-Route::post('/users', [UserController::class, 'store'])->name('users.store');
-
-Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
-Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-
+// Task routes
+Route::resource('tasks', TaskController::class);

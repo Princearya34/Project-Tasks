@@ -1,77 +1,78 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    // Display a list of users
     public function index()
     {
         $users = User::all();
         return view('users.index', compact('users'));
     }
 
-    // Show the form for creating a new user
     public function create()
     {
         return view('users.create');
     }
 
-    // Store a newly created user in the database
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
+        $validatedData = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'image' => 'nullable|image|max:2048', // 2MB max image size
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('user_images', 'public');
+            $validatedData['image'] = $imagePath;
+        }
+
+        User::create($validatedData);
 
         return redirect()->route('users.index')->with('success', 'User created successfully!');
     }
 
-    // Display the specified user's details
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
         return view('users.show', compact('user'));
     }
 
-    // Show the form for editing a user
-    public function edit($id)
+    public function edit(User $user)
     {
-        $user = User::findOrFail($id);
         return view('users.edit', compact('user'));
     }
 
-    // Update the specified user in the database
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
+        $validatedData = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $user = User::findOrFail($id);
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
+        if ($request->hasFile('image')) {
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+            $imagePath = $request->file('image')->store('user_images', 'public');
+            $validatedData['image'] = $imagePath;
+        }
+
+        $user->update($validatedData);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
     }
 
-    // Remove the specified user from the database
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
+        }
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');

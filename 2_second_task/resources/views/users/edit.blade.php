@@ -1,55 +1,45 @@
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h2>Edit User</h2>
+    <div class="container">
+        <h2>Edit User</h2>
+        <form action="{{ route('users.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" name="name" class="form-control" value="{{ $user->name }}" required>
+            </div>
 
-    {{-- Display Validation Errors Only --}}
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
+            </div>
 
-    <form action="{{ route('users.update', $user->id) }}" method="POST" novalidate>
-        @csrf
-        @method('PUT')
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+            </div>
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input 
-                type="text" 
-                class="form-control @error('name') is-invalid @enderror" 
-                name="name" 
-                id="name" 
-                value="{{ old('name', $user->name) }}" 
-                required
-            >
-            @error('name')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+            <div class="form-group">
+                <label>Upload New Image:</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+            </div>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input 
-                type="email" 
-                class="form-control @error('email') is-invalid @enderror" 
-                name="email" 
-                id="email" 
-                value="{{ old('email', $user->email) }}" 
-                required
-            >
-            @error('email')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+            @if ($user->image)
+                <div class="form-group">
+                    <label>Current Image:</label>
+                    <img src="{{ asset('storage/' . $user->image) }}" alt="User  Image" style="width: 100px; height: auto;">
+                </div>
+            @endif
 
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
-</div>
+            <button type="submit" class="btn btn-primary">Update User</button>
+        </form>
+    </div>
 @endsection

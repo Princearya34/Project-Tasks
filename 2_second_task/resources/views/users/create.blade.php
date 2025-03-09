@@ -1,42 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h2>Create User</h2>
+    <div class="container">
+        <h2>Create New User</h2>
+        <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
 
-    <form action="{{ route('users.store') }}" method="POST">
-        @csrf
-        <div class="mb-3">
-            <label>Name</label>
-            <input type="text" class="form-control" name="name" required>
-        </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
 
-        <div class="mb-3">
-            <label>Email</label>
-            <input type="email" class="form-control" name="email" required>
-        </div>
+            <div class="form-group">
+                <label>Upload Image:</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+            </div>
 
-        <div class="mb-3">
-            <label>Password</label>
-            <input type="password" class="form-control" name="password" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Confirm Password</label>
-            <input type="password" class="form-control" name="password_confirmation" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Create</button>
-    </form>
-</div>
+            <button type="submit" class="btn btn-primary">Create User</button>
+        </form>
+    </div>
 @endsection

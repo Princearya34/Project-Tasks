@@ -2,16 +2,21 @@
 
 @section('content')
 <div class="container">
+    <h1>User List</h1>
+
+    <!-- Flash Messages -->
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success fade show" role="alert">
+            {{ session('success') }}
+        </div>
     @endif
 
-    <h2>Users List</h2>
-    <a href="{{ route('users.create') }}" class="btn btn-primary">Create User</a>
+    <a href="{{ route('users.create') }}" class="btn btn-success mb-3">Create New User</a>
 
-    <table class="table mt-3">
+    <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Profile</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Actions</th>
@@ -19,59 +24,72 @@
         </thead>
         <tbody>
             @foreach($users as $user)
-            <tr>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->email }}</td>
-                <td>
-                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info">View</a>
-                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning">Edit</a>
-                    
-                    {{-- Delete Button with Bootstrap Modal --}}
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                        data-userid="{{ $user->id }}">
-                        Delete
-                    </button>
-                </td>
-            </tr>
+                <tr>
+                    <td>
+                        @if($user->image)
+                            <img src="{{ asset('storage/' . $user->image) }}" class="rounded-circle" width="50" height="50" alt="User Image">
+                        @else
+                            <img src="{{ asset('default-avatar.png') }}" class="rounded-circle" width="50" height="50" alt="Default Avatar">
+                        @endif
+                    </td>
+                    <td>{{ $user->name }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>
+                        <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Show</a>
+                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-sm">Edit</a>
+
+                        <!-- Delete Button with Modal -->
+                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-userid="{{ $user->id }}">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
             @endforeach
         </tbody>
     </table>
 </div>
 
-{{-- Delete Confirmation Modal --}}
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Bootstrap 4 Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 Are you sure you want to delete this user?
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <form id="deleteForm" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-{{-- JavaScript to Handle Modal --}}
+<!-- JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; // Button that triggered the modal
-            var userId = button.getAttribute('data-userid'); // Extract user ID
+    $(document).ready(function() {
+        // Set the delete form action dynamically
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var userId = button.data('userid');
+            var actionUrl = "{{ route('users.destroy', '') }}/" + userId;
 
-            var form = document.getElementById('deleteForm');
-            form.action = '/users/' + userId; // Update form action dynamically
+            $('#deleteForm').attr('action', actionUrl);
         });
+
+        // Auto-hide success messages after 3 seconds
+        setTimeout(function () {
+            $('.alert-success').fadeOut();
+        }, 3000);
     });
 </script>
 
