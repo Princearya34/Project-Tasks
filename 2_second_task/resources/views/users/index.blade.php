@@ -4,7 +4,6 @@
 <div class="container">
     <h1>User List</h1>
 
-    <!-- Flash Messages -->
     @if(session('success'))
         <div class="alert alert-success fade show" role="alert">
             {{ session('success') }}
@@ -13,10 +12,10 @@
 
     <a href="{{ route('users.create') }}" class="btn btn-success mb-3">Create New User</a>
 
-    <table class="table table-bordered">
+    <table id="usersTable" class="table table-bordered">
         <thead>
             <tr>
-                <th>Profile</th>
+                <th>Image</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Actions</th>
@@ -37,9 +36,12 @@
                     <td>
                         <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Show</a>
                         <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-sm">Edit</a>
-
-                        <!-- Delete Button with Modal -->
-                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-userid="{{ $user->id }}">
+                        
+                        <!-- Delete Button -->
+                        <button type="button" class="btn btn-danger btn-sm deleteUser" 
+                                data-userid="{{ $user->id }}" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#deleteModal">
                             Delete
                         </button>
                     </td>
@@ -49,13 +51,13 @@
     </table>
 </div>
 
-<!-- Bootstrap 4 Delete Confirmation Modal -->
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -63,7 +65,7 @@
                 Are you sure you want to delete this user?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="deleteForm" method="POST">
                     @csrf
                     @method('DELETE')
@@ -74,22 +76,20 @@
     </div>
 </div>
 
-<!-- JavaScript -->
+<!-- jQuery Script -->
 <script>
-    $(document).ready(function() {
-        // Set the delete form action dynamically
-        $('#deleteModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var userId = button.data('userid');
-            var actionUrl = "{{ route('users.destroy', '') }}/" + userId;
+    $(document).ready(function () {
+        // Initialize DataTable
+        $('#usersTable').DataTable();
 
+        // Handle Delete Button Click
+        $('.deleteUser').click(function () {
+            var userId = $(this).data('userid');
+            var actionUrl = "{{ url('users') }}/" + userId;
+
+            // Set form action dynamically
             $('#deleteForm').attr('action', actionUrl);
         });
-
-        // Auto-hide success messages after 3 seconds
-        setTimeout(function () {
-            $('.alert-success').fadeOut();
-        }, 3000);
     });
 </script>
 

@@ -16,5 +16,6 @@ Route::get('/hello', [HelloController::class, 'index']);
 // User routes
 Route::resource('users', UserController::class);
 
-// Task routes
 Route::resource('tasks', TaskController::class);
+Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
