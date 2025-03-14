@@ -2,95 +2,114 @@
 
 @section('content')
 <div class="container">
-    <h1>User List</h1>
-
-    @if(session('success'))
-        <div class="alert alert-success fade show" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
+    <h2>User List</h2>
 
     <a href="{{ route('users.create') }}" class="btn btn-success mb-3">Create New User</a>
 
-    <table id="usersTable" class="table table-bordered">
+    <!-- Bootstrap Toast for Success Message -->
+    @if(session('success'))
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <div id="successToast" class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ session('success') }}
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <table id="userTable" class="table table-bordered">
         <thead>
             <tr>
-                <th>Image</th>
+                <th>Profile Image</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Phone</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($users as $user)
-                <tr>
-                    <td>
+            @foreach ($users as $user)
+            <tr>
+                <td>
+                    <a href="{{ route('users.show', $user->id) }}">
                         @if($user->image)
-                            <img src="{{ asset('storage/' . $user->image) }}" class="rounded-circle" width="50" height="50" alt="User Image">
+                            <img src="{{ asset('storage/' . $user->image) }}" class="rounded-circle" width="50" height="50">
                         @else
-                            <img src="{{ asset('default-avatar.png') }}" class="rounded-circle" width="50" height="50" alt="Default Avatar">
+                            <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle" width="50" height="50">
                         @endif
-                    </td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>
-                        <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Show</a>
-                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        
-                        <!-- Delete Button -->
-                        <button type="button" class="btn btn-danger btn-sm deleteUser" 
-                                data-userid="{{ $user->id }}" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#deleteModal">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
+                    </a>
+                </td>
+                <td>{{ $user->name }}</td>
+                <td>{{ $user->email }}</td>
+                <td>{{ $user->phone }}</td>
+                <td>
+                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info">View</a>
+                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary">Edit</a>
+                    <button type="button" class="btn btn-danger deleteUser" data-bs-toggle="modal" data-bs-target="#deleteModal" data-userid="{{ $user->id }}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
             @endforeach
         </tbody>
     </table>
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 Are you sure you want to delete this user?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="deleteForm" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Yes, Delete</button>
                 </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- jQuery Script -->
+@push('scripts')
+<!-- DataTables & jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
     $(document).ready(function () {
         // Initialize DataTable
-        $('#usersTable').DataTable();
+        $('#userTable').DataTable({
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "lengthMenu": [5, 10, 25, 50, 100], 
+            "pageLength": 5,        
+        }); 
 
         // Handle Delete Button Click
         $('.deleteUser').click(function () {
             var userId = $(this).data('userid');
-            var actionUrl = "{{ url('users') }}/" + userId;
-
-            // Set form action dynamically
+            var actionUrl = "{{ route('users.destroy', '__ID__') }}".replace('__ID__', userId);
             $('#deleteForm').attr('action', actionUrl);
         });
+
+        // Auto-hide toast after 3 seconds
+        setTimeout(function () {
+            $('.toast').fadeOut('slow');
+        }, 3000);
     });
 </script>
-
+@endpush
 @endsection

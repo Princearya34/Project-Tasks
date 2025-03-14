@@ -20,7 +20,7 @@
 <style>
     .profile-img {
         width: 100%; 
-        height: 250px; /* Adjust height as needed */
+        height: 250px; 
         object-fit: cover;
         border-radius: 0; /* Makes the image square */
     }

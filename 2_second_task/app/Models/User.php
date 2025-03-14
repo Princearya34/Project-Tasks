@@ -10,12 +10,17 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'image']; // Added 'image'
+    protected $fillable = ['name', 'email', 'phone', 'password', 'image'];
 
 
-
-    protected $hidden = [
-        'password',
-        'remember_token',
+public static function rules()
+{
+    return [
+        'name' => ['required', 'regex:/^[A-Za-z][A-Za-z _]+$/'],
+        'email' => ['required', 'email', 'unique:users'],
+        'password' => ['required', 'min:6'], // Keep password
+        'phone' => ['required', 'digits:10', 'unique:users']
     ];
+}
+
 }

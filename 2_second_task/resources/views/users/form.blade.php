@@ -25,6 +25,10 @@
         <input type="email" name="email" class="form-control" value="{{ old('email') }}">
     </div>
     <div class="mb-3">
+        <label>Phone:</label>
+        <input type="phone" name="phone" class="form-control" value="{{ old('phone') }}">
+    </div>
+    <div class="mb-3">
         <label>Password:</label>
         <input type="password" name="password" class="form-control">
     </div>
