@@ -4,12 +4,13 @@
 <div class="container">
     <h2>User List</h2>
 
+    <!-- Create New User Button -->
     <a href="{{ route('users.create') }}" class="btn btn-success mb-3">Create New User</a>
 
     <!-- Bootstrap Toast for Success Message -->
     @if(session('success'))
         <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="successToast" class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
                     <div class="toast-body">
                         {{ session('success') }}
@@ -18,8 +19,10 @@
                 </div>
             </div>
         </div>
+        {{ session()->forget('success') }} <!-- Clear session message -->
     @endif
 
+    <!-- User Table -->
     <table id="userTable" class="table table-bordered">
         <thead>
             <tr>
@@ -35,7 +38,7 @@
             <tr>
                 <td>
                     <a href="{{ route('users.show', $user->id) }}">
-                        @if($user->image)
+                        @if($user->image && Storage::disk('public')->exists($user->image))
                             <img src="{{ asset('storage/' . $user->image) }}" class="rounded-circle" width="50" height="50">
                         @else
                             <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle" width="50" height="50">
@@ -86,6 +89,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
 <script>
     $(document).ready(function () {
         // Initialize DataTable
@@ -96,19 +100,26 @@
             "info": true,
             "lengthMenu": [5, 10, 25, 50, 100], 
             "pageLength": 5,        
-        }); 
+        });
 
-        // Handle Delete Button Click
+        // Handle Delete Button Click (Set Correct Form Action)
         $('.deleteUser').click(function () {
             var userId = $(this).data('userid');
-            var actionUrl = "{{ route('users.destroy', '__ID__') }}".replace('__ID__', userId);
+            var actionUrl = "{{ url('users') }}/" + userId;
             $('#deleteForm').attr('action', actionUrl);
         });
 
-        // Auto-hide toast after 3 seconds
-        setTimeout(function () {
-            $('.toast').fadeOut('slow');
-        }, 3000);
+        // Show toast notification properly
+        let successToast = $('#successToast');
+        if (successToast.length) {
+            let toast = new bootstrap.Toast(successToast[0]);
+            toast.show();
+
+            // Auto-hide toast after 3 seconds
+            setTimeout(() => {
+                toast.hide();
+            }, 3000);
+        }
     });
 </script>
 @endpush

@@ -3,24 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable {
-    use HasFactory, Notifiable;
-
-    protected $fillable = ['name', 'email', 'phone', 'password', 'image'];
-
-
-public static function rules()
+class User extends Authenticatable
 {
-    return [
-        'name' => ['required', 'regex:/^[A-Za-z][A-Za-z _]+$/'],
-        'email' => ['required', 'email', 'unique:users'],
-        'password' => ['required', 'min:6'], // Keep password
-        'phone' => ['required', 'digits:10', 'unique:users']
-    ];
+    use HasFactory;
+
+    // Allow these fields to be mass assigned
+    protected $fillable = ['name', 'email', 'phone', 'image'];
+
+    // Define many-to-many relationship with Project model
+    public function projects(): BelongsToMany
+{
+    return $this->belongsToMany(Project::class, 'project_user');
 }
+
 
 }
