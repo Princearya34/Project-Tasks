@@ -3,115 +3,104 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use App\Models\Task;
 use App\Models\Project;
 
 class TaskController extends Controller
 {
     /**
-     * Display a list of tasks (filtered by project if needed).
+     * Display a list of tasks for a specific project.
      */
-    public function index(Request $request)
+    public function index($projectId)
     {
-        $query = Task::with('project');
+        $project = Project::findOrFail($projectId);
+        $tasks = $project->tasks; // Using Eloquent relationship
 
-        if ($request->has('project')) {
-            $query->where('project_id', $request->project);
-        }
-
-        $tasks = $query->get();
-
-        return view('tasks.index', compact('tasks'));
+        return view('tasks.index', compact('tasks', 'project'));
     }
 
     /**
-     * Show the form to create a new task for a given project.
+     * Show the form to create a new task for a specific project.
      */
     public function create($projectId)
     {
-        $project = Project::findOrFail($projectId); // Ensure project exists
+        $project = Project::findOrFail($projectId);
         return view('tasks.create', compact('project'));
     }
 
     /**
      * Store a new task under a specific project.
      */
-    public function store(Request $request, $projectId)
-    {
-        $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status'      => 'nullable|in:Pending,In Progress,Completed',
-        ]);
+    public function store(Request $request, $projectId) // Capture projectId from route
+{
+    $request->validate([
+        'title'       => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'status'      => 'required|in:Pending,In Progress,Completed',
+    ]);
 
-        $project = Project::findOrFail($projectId); // Ensure project exists
+    // ✅ Explicitly setting 'project_id'
+    Task::create([
+        'project_id'  => $projectId, // Use route parameter
+        'title'       => $request->title,
+        'description' => $request->description,
+        'status'      => $request->status,
+    ]);
 
-        $project->tasks()->create([
-            'title'       => $request->title,
-            'description' => $request->description,
-            'status'      => $request->status ?? 'Pending', // Default to 'Pending'
-        ]);
+    return redirect()->route('projects.tasks.index', $projectId)
+                     ->with('success', 'Task created successfully!');
+}
 
-        return redirect()->route('projects.show', $project->id)
-                         ->with('success', 'Task added successfully!');
-    }
 
     /**
-     * Show the form to edit a task under a specific project.
+     * Show the form to edit a task.
      */
     public function edit($projectId, $taskId)
     {
-        $project = Project::findOrFail($projectId); // Ensure project exists
-        $task = Task::findOrFail($taskId); // Ensure task exists
+        $project = Project::findOrFail($projectId);
+        $task = Task::findOrFail($taskId);
 
         return view('tasks.edit', compact('project', 'task'));
     }
 
     /**
-     * Update an existing task under a project.
+     * Update an existing task.
      */
     public function update(Request $request, $projectId, $taskId)
     {
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
+            'status'      => 'required|in:Pending,In Progress,Completed',
         ]);
 
         $task = Task::findOrFail($taskId);
-        $task->update([
-            'title'       => $request->title,
-            'description' => $request->description,
-        ]);
+        $task->update($request->all());
 
-        return redirect()->route('projects.show', $projectId)
+        return redirect()->route('projects.tasks.index', $projectId)
                          ->with('success', 'Task updated successfully.');
     }
 
     /**
-     * Delete a task under a specific project.
+     * Delete a task.
      */
     public function destroy($projectId, $taskId)
     {
         $task = Task::findOrFail($taskId);
         $task->delete();
 
-        return redirect()->route('projects.show', $projectId)
+        return redirect()->route('projects.tasks.index', $projectId)
                          ->with('success', 'Task deleted successfully.');
     }
 
     /**
-     * Update task status.
+     * Fetch tasks for a specific project (API for AJAX).
      */
-    public function updateStatus(Request $request, $projectId, $taskId)
+    public function fetchTasks(Project $project) // Using Route Model Binding
     {
-        $request->validate([
-            'status' => 'required|in:Pending,In Progress,Completed',
+        return response()->json([
+            'success' => true,
+            'tasks' => $project->tasks
         ]);
-
-        $task = Task::findOrFail($taskId);
-        $task->update(['status' => $request->status]);
-
-        return redirect()->back()->with('success', 'Task status updated!');
     }
 }

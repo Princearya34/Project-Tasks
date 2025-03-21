@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,14 +9,20 @@ class User extends Authenticatable
 {
     use HasFactory;
 
-    // Allow these fields to be mass assigned
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = ['name', 'email', 'phone', 'image'];
 
-    // Define many-to-many relationship with Project model
+    /**
+     * Define the many-to-many relationship with projects.
+     *
+     * @return BelongsToMany
+     */
     public function projects(): BelongsToMany
-{
-    return $this->belongsToMany(Project::class, 'project_user');
-}
-
-
+    {
+        return $this->belongsToMany(Project::class, 'project_user')->withTimestamps();
+    }
 }

@@ -9,8 +9,18 @@ class Task extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = ['project_id', 'title', 'description', 'status'];
 
+    /**
+     * A task belongs to a single project.
+     *
+     * @return BelongsTo
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

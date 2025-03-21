@@ -34,7 +34,7 @@
                         <td>
                             <a href="{{ route('projects.show', $project->id) }}" class="btn btn-info btn-sm">View</a>
                             <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="{{ route('tasks.index', ['project' => $project->id]) }}" class="btn btn-primary btn-sm">Manage Tasks</a>
+                            <a href="{{ route('projects.tasks.index', $project->id) }}" class="btn btn-primary btn-sm">Manage Tasks</a> <!-- ✅ FIXED -->
 
                             <!-- Delete Button with Modal Trigger -->
                             <button type="button" class="btn btn-danger btn-sm delete-btn" 
@@ -55,5 +55,4 @@
 
         <a href="{{ url('/') }}" class="btn btn-secondary">Back to Home</a>
     </div>
-
 @endsection

@@ -7,29 +7,39 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
 use App\Models\Project;
 
-// Home route
+// ✅ Home Route
 Route::get('/', function () {
     $projects = Project::select('id', 'name', 'description')->get();
     return view('welcome', compact('projects'));
 });
 
-// Hello route
+// ✅ Hello Route
 Route::get('/hello', [HelloController::class, 'index']);
 
-// User routes
+// ✅ User Routes
 Route::resource('users', UserController::class);
-Route::post('/users/{user}/assign-project', [UserController::class, 'assignProject'])->name('users.assignProject');
+Route::post('/users/{user}/assign-project', [UserController::class, 'assignProject'])
+    ->name('users.assignProject');
 
-// Project routes
+// ✅ Project Routes
 Route::resource('projects', ProjectController::class);
-Route::post('/projects/{project}/assign-user', [ProjectController::class, 'assignUser'])->name('projects.assignUser');
+Route::post('/projects/{project}/assign-user', [ProjectController::class, 'assignUser'])
+    ->name('projects.assignUser');
 
-// Task routes (Manually defining instead of `shallow()`)
-Route::get('projects/{project}/tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
-Route::get('projects/{project}/tasks/create', [TaskController::class, 'create'])->name('projects.tasks.create');
-Route::post('projects/{project}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
-Route::get('projects/{project}/tasks/{task}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
-Route::put('projects/{project}/tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
-Route::delete('projects/{project}/tasks/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
-Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+// ✅ Task Routes (Scoped to a Project)
+Route::prefix('projects/{project}')->group(function () {
+    // ✅ Ensure 'create' comes before dynamic '{task}' routes
+    Route::get('/tasks/create', [TaskController::class, 'create'])->name('projects.tasks.create');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
 
+    Route::get('/tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
+    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
+    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
+
+    // ✅ Keep 'show' after other task routes
+    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
+
+    // ✅ API Endpoint for AJAX Task Fetching
+    Route::get('/tasks/api', [TaskController::class, 'fetchTasks'])->name('projects.tasks.api');
+});

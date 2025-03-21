@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', $user->name . "'s Details")
+
 @section('content')
 <div class="container">
     <h2>{{ $user->name }}'s Details</h2>
@@ -22,7 +24,7 @@
     <!-- Assigned Projects -->
     <h4>Assigned Projects</h4>
     <table class="table">
-        <thead>
+        <thead class="table-dark">
             <tr>
                 <th>Project Name</th>
                 <th>Actions</th>
@@ -32,7 +34,12 @@
             @foreach($user->projects as $project)
                 <tr>
                     <td>{{ $project->name }}</td>
-                    <td><a href="{{ route('projects.show', $project) }}" class="btn btn-info">View Tasks</a></td>
+                    <td>
+                        <!-- View Tasks Button (Now Redirects) -->
+                        <a href="{{ route('projects.tasks.index', $project->id) }}" class="btn btn-info">
+                            View Tasks
+                        </a>
+                    </td>
                 </tr>
             @endforeach
         </tbody>
@@ -43,7 +50,8 @@
     <form action="{{ route('users.assignProject', $user) }}" method="POST">
         @csrf
         <div class="input-group mb-3">
-            <select name="project_id" class="form-control">
+            <select name="project_id" class="form-control" required>
+                <option value="">Select Project</option>
                 @foreach($projects as $project)
                     <option value="{{ $project->id }}">{{ $project->name }}</option>
                 @endforeach
@@ -59,7 +67,8 @@
         width: 100%; 
         height: 250px; 
         object-fit: cover;
-        border-radius: 0; /* Makes the image square */
+        border-radius: 0;
     }
 </style>
+
 @endsection
