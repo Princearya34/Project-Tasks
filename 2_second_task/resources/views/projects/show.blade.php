@@ -2,17 +2,17 @@
 
 @section('content')
     <div class="container">
-        <h1 class="mb-3">{{ $project->name }}</h1>
+        <h1 class="mb-3"><i class="fas fa-folder"></i> {{ $project->name }}</h1>
         <p><strong>Description:</strong> {{ $project->description }}</p>
 
         <!-- Assigned Users -->
-        <h3>Assigned Users</h3>
+        <h3><i class="fas fa-users"></i> Assigned Users</h3>
         @if($project->users->isEmpty())
             <p class="text-muted">No users assigned yet.</p>
         @else
             <ul class="list-group mb-3">
                 @foreach ($project->users as $user)
-                    <li class="list-group-item">{{ $user->name }}</li>
+                    <li class="list-group-item"><i class="fas fa-user"></i> {{ $user->name }}</li>
                 @endforeach
             </ul>
         @endif
@@ -33,23 +33,23 @@
                     @endif
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Assign User</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Assign</button>
         </form>
 
         <hr>
 
         <!-- Project Tasks -->
-        <h3>Project Tasks</h3>
+        <h3><i class="fas fa-tasks"></i> Project Tasks</h3>
         @if($project->tasks->isEmpty())
             <p class="text-muted">No tasks added yet.</p>
         @else
             <table class="table table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><i class="fas fa-hashtag"></i> ID</th>
+                        <th><i class="fas fa-heading"></i> Title</th>
+                        <th><i class="fas fa-check-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,19 +61,31 @@
                                 <span class="badge 
                                     {{ $task->status === 'Pending' ? 'bg-warning' : 
                                        ($task->status === 'In Progress' ? 'bg-primary' : 'bg-success') }}">
-                                    {{ $task->status }}
+                                    <i class="fas fa-info-circle"></i> {{ $task->status }}
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('projects.tasks.edit', [$project->id, $task->id]) }}" 
-                                   class="btn btn-sm btn-warning">Edit</a>
+                                <!-- Show Task Button -->
+                                <a href="{{ route('projects.tasks.show', [$project->id, $task->id]) }}" 
+                                   class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
 
+                                <!-- Edit Task Button -->
+                                <a href="{{ route('projects.tasks.edit', [$project->id, $task->id]) }}" 
+                                   class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Delete Task Button -->
                                 <form action="{{ route('projects.tasks.destroy', [$project->id, $task->id]) }}" 
                                       method="POST" style="display:inline;" 
                                       onsubmit="return confirm('Are you sure?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -83,24 +95,34 @@
         @endif
 
         <!-- Add Task Button -->
-        <a href="{{ route('projects.tasks.create', $project->id) }}" class="btn btn-success mb-3">Add Task</a>
+        <a href="{{ route('projects.tasks.create', $project->id) }}" class="btn btn-success mb-3">
+            <i class="fas fa-plus"></i> Add Task
+        </a>
 
         <hr>
 
         <!-- Edit & Delete Buttons -->
-        <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning">Edit Project</a>
+        <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Edit
+        </a>
 
         <form action="{{ route('projects.destroy', $project->id) }}" method="POST" 
               style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this project?');">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn btn-danger">Delete Project</button>
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         </form>
 
         <hr>
 
         <!-- Navigation Buttons -->
-        <a href="{{ route('projects.index') }}" class="btn btn-outline-primary">Back to Projects</a>
-        <a href="{{ url('/') }}" class="btn btn-outline-secondary">Back to Home</a>
+        <a href="{{ route('projects.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Projects
+        </a>
+        <a href="{{ url('/') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-home"></i> Home
+        </a>
     </div>
 @endsection

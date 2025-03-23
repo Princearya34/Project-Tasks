@@ -4,7 +4,9 @@
     <div class="container">
         <h1>Projects List</h1>
 
-        <a href="{{ route('projects.create') }}" class="btn btn-success mb-3">Create New Project</a>
+        <a href="{{ route('projects.create') }}" class="btn btn-success mb-3">
+            <i class="fas fa-plus"></i> Create New Project
+        </a>
 
         <table class="table table-bordered table-hover">
             <thead class="table-dark">
@@ -32,16 +34,20 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('projects.show', $project->id) }}" class="btn btn-info btn-sm">View</a>
-                            <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="{{ route('projects.tasks.index', $project->id) }}" class="btn btn-primary btn-sm">Manage Tasks</a> <!-- ✅ FIXED -->
-
-                            <!-- Delete Button with Modal Trigger -->
+                            <a href="{{ route('projects.show', $project->id) }}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ route('projects.tasks.index', $project->id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-tasks"></i>
+                            </a>
                             <button type="button" class="btn btn-danger btn-sm delete-btn" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#deleteModal" 
                                     data-url="{{ route('projects.destroy', $project->id) }}">
-                                Delete
+                                <i class="fas fa-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -53,6 +59,13 @@
             </tbody>
         </table>
 
-        <a href="{{ url('/') }}" class="btn btn-secondary">Back to Home</a>
+        <a href="{{ url('/') }}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
     </div>
 @endsection
+
+@push('scripts')
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@endpush

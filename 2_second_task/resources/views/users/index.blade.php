@@ -49,10 +49,19 @@
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->phone }}</td>
                 <td>
-                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info">View</a>
-                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary">Edit</a>
+                    <!-- View Button -->
+                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info">
+                        <i class="fas fa-eye"></i> <!-- Font Awesome View Icon -->
+                    </a>
+
+                    <!-- Edit Button -->
+                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> <!-- Font Awesome Edit Icon -->
+                    </a>
+
+                    <!-- Delete Button -->
                     <button type="button" class="btn btn-danger deleteUser" data-bs-toggle="modal" data-bs-target="#deleteModal" data-userid="{{ $user->id }}">
-                        Delete
+                        <i class="fas fa-trash"></i> <!-- Font Awesome Delete Icon -->
                     </button>
                 </td>
             </tr>
@@ -85,6 +94,9 @@
 </div>
 
 @push('scripts')
+<!-- Font Awesome CDN (For Icons) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <!-- DataTables & jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

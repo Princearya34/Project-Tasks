@@ -4,23 +4,27 @@
 
 @section('content')
     <div class="container">
-        <h1>Task List for {{ isset($project) ? $project->name : 'All Projects' }}</h1>
+        <h1><i class="fas fa-tasks"></i> Task List for {{ isset($project) ? $project->name : 'All Projects' }}</h1>
 
         @if(isset($project))
-            <a href="{{ route('projects.tasks.create', $project->id) }}" class="btn btn-success mb-3">Create Task</a>
+            <a href="{{ route('projects.tasks.create', $project->id) }}" class="btn btn-success mb-3">
+                <i class="fas fa-plus"></i> Create Task
+            </a>
         @endif
 
         @if ($tasks->isEmpty())
-            <div class="alert alert-info">No tasks found.</div>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No tasks found.
+            </div>
         @else
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Project</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><i class="fas fa-hashtag"></i> ID</th>
+                        <th><i class="fas fa-heading"></i> Title</th>
+                        <th><i class="fas fa-folder"></i> Project</th>
+                        <th><i class="fas fa-check-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,30 +34,35 @@
                             <td>{{ $task->title }}</td>
                             <td>
                                 @if ($task->project)
-                                    <a href="{{ route('projects.show', $task->project->id) }}" 
-                                       class="badge bg-primary text-white text-decoration-none">
-                                        {{ $task->project->name }}
+                                    <a href="{{ route('projects.show', $task->project->id) }}" class="badge bg-primary text-white text-decoration-none">
+                                        <i class="fas fa-folder"></i> {{ $task->project->name }}
                                     </a>
                                 @else
-                                    <span class="text-muted">No Project</span>
+                                    <span class="text-muted"><i class="fas fa-ban"></i> No Project</span>
                                 @endif
                             </td>
                             <td>
                                 @if($task->status === 'completed')
-                                    <span class="badge bg-success">Completed</span>
+                                    <span class="badge bg-success"><i class="fas fa-check"></i> Completed</span>
                                 @elseif($task->status === 'pending')
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half"></i> Pending</span>
                                 @elseif($task->status)
-                                    <span class="badge bg-info">{{ ucfirst($task->status) }}</span>
+                                    <span class="badge bg-info"><i class="fas fa-info-circle"></i> {{ ucfirst($task->status) }}</span>
                                 @else
-                                    <span class="badge bg-secondary">No Status</span>
+                                    <span class="badge bg-secondary"><i class="fas fa-question-circle"></i> No Status</span>
                                 @endif
                             </td>
                             <td>
+                                <!-- View Button -->
+                                <a href="{{ route('projects.tasks.show', ['project' => $task->project_id, 'task' => $task->id]) }}" 
+                                   class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
                                 <!-- Edit Button -->
                                 <a href="{{ route('projects.tasks.edit', ['project' => $task->project_id, 'task' => $task->id]) }}" 
                                    class="btn btn-warning btn-sm">
-                                    Edit
+                                    <i class="fas fa-edit"></i>
                                 </a>
 
                                 <!-- Delete Button -->
@@ -61,7 +70,7 @@
                                         data-bs-toggle="modal" 
                                         data-bs-target="#deleteModal" 
                                         data-url="{{ route('projects.tasks.destroy', ['project' => $task->project_id, 'task' => $task->id]) }}">
-                                    Delete
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
@@ -71,9 +80,13 @@
         @endif
 
         @if(isset($project))
-            <a href="{{ route('projects.show', $project->id) }}" class="btn btn-secondary">Back to Project</a>
+            <a href="{{ route('projects.show', $project->id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Project
+            </a>
         @else
-            <a href="{{ route('projects.index') }}" class="btn btn-secondary">Back to Projects</a>
+            <a href="{{ route('projects.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Projects
+            </a>
         @endif
     </div>
 
@@ -82,18 +95,24 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete this task? This action cannot be undone.
+                    <i class="fas fa-question-circle"></i> Are you sure you want to delete this task? This action cannot be undone.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
                     <form id="deleteForm" method="POST" action="">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
                     </form>
                 </div>
             </div>
@@ -105,8 +124,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.body.addEventListener("click", function (event) {
-            if (event.target.classList.contains("delete-btn")) {
-                const deleteUrl = event.target.getAttribute("data-url");
+            if (event.target.closest(".delete-btn")) {
+                const deleteUrl = event.target.closest(".delete-btn").getAttribute("data-url");
                 document.getElementById("deleteForm").setAttribute("action", deleteUrl);
             }
         });

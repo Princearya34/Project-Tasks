@@ -5,7 +5,9 @@ use App\Http\Controllers\HelloController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\AdminController;
 use App\Models\Project;
+use Spatie\Permission\Models\Role;
 
 // ✅ Home Route
 Route::get('/', function () {
@@ -42,4 +44,29 @@ Route::prefix('projects/{project}')->group(function () {
 
     // ✅ API Endpoint for AJAX Task Fetching
     Route::get('/tasks/api', [TaskController::class, 'fetchTasks'])->name('projects.tasks.api');
+});
+
+// ✅ Admin Routes (Only for 'admin' role)
+Route::middleware(['role:admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+});
+
+// ✅ User Routes (Only for 'user' role)
+Route::middleware(['role:user'])->group(function () {
+    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
+});
+Route::get('/test-role', function () {
+    $user = auth()->user();
+
+    if (!$user) {
+        return "User is not logged in.";
+    }
+
+    if ($user->hasRole('admin')) {
+        return "You are an Admin";
+    } elseif ($user->hasRole('user')) {
+        return "You are a Normal User";
+    } else {
+        return "No role assigned!";
+    }
 });

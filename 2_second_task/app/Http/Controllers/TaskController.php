@@ -103,4 +103,15 @@ class TaskController extends Controller
             'tasks' => $project->tasks
         ]);
     }
+    public function show($projectId, $taskId)
+{
+    $task = Task::where('id', $taskId)->where('project_id', $projectId)->first();
+
+    if (!$task) {
+        return redirect()->route('projects.index')->with('error', 'Task not found.');
+    }
+
+    return view('tasks.show', compact('task'));
+}
+
 }
