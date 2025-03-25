@@ -3,7 +3,7 @@
 @section('title', 'Welcome')
 
 @section('content')
-    <div class="container mt-4 text-center">
+    <div class="container mt-5 text-center">
         <h1 class="mb-4 text-primary">Welcome to Laravel</h1>
 
         <!-- View Users Button -->

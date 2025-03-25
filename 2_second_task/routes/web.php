@@ -1,72 +1,71 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HelloController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\AdminController;
-use App\Models\Project;
-use Spatie\Permission\Models\Role;
+use App\Http\Controllers\TaskController;
+use Illuminate\Support\Facades\Route;
 
-// ✅ Home Route
+// Public Home Route
 Route::get('/', function () {
-    $projects = Project::select('id', 'name', 'description')->get();
-    return view('welcome', compact('projects'));
+    return view('welcome');
+})->name('home');
+
+// Authenticated Routes (For Verified Users)
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Normal User & Admin Dashboard
+    Route::get('/dashboard', function () {
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+        return view('dashboard');
+    })->name('dashboard');
+
+    // Normal User Profile Route (Shows assigned projects & tasks)
+    Route::get('/profile/view', [UserController::class, 'profile'])->name('users.profile');
+
+    // Profile Routes (Edit, Update, Delete)
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 });
 
-// ✅ Hello Route
-Route::get('/hello', [HelloController::class, 'index']);
+// Admin-Only Routes (User & Project Management)
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Admin Dashboard Route
+    Route::get('/admin/dashboard', function () {
+        return view('admin.dashboard'); // Ensure this view exists
+    })->name('admin.dashboard');
 
-// ✅ User Routes
-Route::resource('users', UserController::class);
-Route::post('/users/{user}/assign-project', [UserController::class, 'assignProject'])
-    ->name('users.assignProject');
+    // User Management
+    Route::resource('users', UserController::class);
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-// ✅ Project Routes
-Route::resource('projects', ProjectController::class);
-Route::post('/projects/{project}/assign-user', [ProjectController::class, 'assignUser'])
-    ->name('projects.assignUser');
+    Route::prefix('users/{user}')->group(function () {
+        Route::post('/assign-project', [UserController::class, 'assignProject'])->name('users.assignProject');
+        Route::get('/assign-role', [UserController::class, 'showAssignRole'])->name('users.showAssignRole');
+        Route::put('/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
+    });
 
-// ✅ Task Routes (Scoped to a Project)
-Route::prefix('projects/{project}')->group(function () {
-    // ✅ Ensure 'create' comes before dynamic '{task}' routes
-    Route::get('/tasks/create', [TaskController::class, 'create'])->name('projects.tasks.create');
-    Route::post('/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
-
-    Route::get('/tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
-    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
-    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
-    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
-
-    // ✅ Keep 'show' after other task routes
-    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
-
-    // ✅ API Endpoint for AJAX Task Fetching
-    Route::get('/tasks/api', [TaskController::class, 'fetchTasks'])->name('projects.tasks.api');
+    // Project Management
+    Route::resource('projects', ProjectController::class);
+    Route::post('/projects/{project}/assign-user', [ProjectController::class, 'assignUser'])->name('projects.assignUser');
 });
 
-// ✅ Admin Routes (Only for 'admin' role)
-Route::middleware(['role:admin'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+// Task Routes (Accessible to Authenticated Users)
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('projects/{project}/tasks')->group(function () {
+        Route::get('/', [TaskController::class, 'index'])->name('projects.tasks.index');
+        Route::get('/create', [TaskController::class, 'create'])->name('projects.tasks.create');
+        Route::post('/', [TaskController::class, 'store'])->name('projects.tasks.store');
+        Route::get('/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
+        Route::get('/{task}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
+        Route::put('/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
+        Route::delete('/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
+    });
 });
 
-// ✅ User Routes (Only for 'user' role)
-Route::middleware(['role:user'])->group(function () {
-    Route::get('/dashboard', [UserController::class, 'index'])->name('user.dashboard');
-});
-Route::get('/test-role', function () {
-    $user = auth()->user();
-
-    if (!$user) {
-        return "User is not logged in.";
-    }
-
-    if ($user->hasRole('admin')) {
-        return "You are an Admin";
-    } elseif ($user->hasRole('user')) {
-        return "You are a Normal User";
-    } else {
-        return "No role assigned!";
-    }
-});
+// Authentication Routes
+require __DIR__.'/auth.php';

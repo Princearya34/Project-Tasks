@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="container">
-    <h2>{{ $user->name }}'s Details</h2>
+    <h2 class="mb-4">{{ $user->name }}'s Details</h2>
 
     <!-- User Profile Card -->
-    <div class="card mb-4" style="width: 18rem;">
-        @if($user->image)
-            <img src="{{ asset('storage/' . $user->image) }}" class="card-img-top profile-img" alt="User Image">
+    <div class="card mb-4 shadow-sm" style="width: 18rem;">
+        @if($user->image && Storage::disk('public')->exists($user->image))
+            <img src="{{ asset('storage/' . $user->image) }}" class="card-img-top profile-img" alt="{{ $user->name }}">
         @else
             <img src="{{ asset('images/default-avatar.png') }}" class="card-img-top profile-img" alt="Default Avatar">
         @endif
@@ -22,31 +22,56 @@
     </div>
 
     <!-- Assigned Projects -->
-    <h4>Assigned Projects</h4>
-    <table class="table">
-        <thead class="table-dark">
-            <tr>
-                <th>Project Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($user->projects as $project)
+    <h4 class="mb-3">Assigned Projects</h4>
+
+    @if($user->projects->count())
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
                 <tr>
-                    <td>{{ $project->name }}</td>
-                    <td>
-                        <!-- View Tasks Button (Now Redirects) -->
-                        <a href="{{ route('projects.tasks.index', $project->id) }}" class="btn btn-info">
-                            View Tasks
-                        </a>
-                    </td>
+                    <th>Project Name</th>
+                    <th>Actions</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($user->projects as $project)
+                    <tr>
+                        <td>{{ $project->name }}</td>
+                        <td>
+                            <!-- View Project -->
+                            <a href="{{ route('projects.show', $project) }}" class="btn btn-info btn-sm">
+                                <i class="fas fa-folder-open"></i> View Project
+                            </a>
+
+                            <!-- View Tasks -->
+                            <a href="{{ route('projects.tasks.index', $project) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-tasks"></i> View Tasks
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <p class="text-muted">No projects assigned yet.</p>
+    @endif
 
     <!-- Assign New Project -->
-    <h4>Assign New Project</h4>
+    <h4 class="mt-4">Assign New Project</h4>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('users.assignProject', $user) }}" method="POST">
         @csrf
         <div class="input-group mb-3">
@@ -56,7 +81,7 @@
                     <option value="{{ $project->id }}">{{ $project->name }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="btn btn-success">Assign</button>
+            <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Assign</button>
         </div>
     </form>
 </div>

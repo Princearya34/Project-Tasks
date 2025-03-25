@@ -8,7 +8,6 @@ class Kernel extends HttpKernel
 {
     /**
      * Global HTTP middleware stack.
-     * These middleware run on every request to your application.
      */
     protected $middleware = [
         \Illuminate\Http\Middleware\TrustHosts::class,
@@ -54,8 +53,13 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
-        // Spatie Role Middleware
-        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        // ✅ Spatie Role & Permission Middleware
+        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+
+        // ✅ Custom Middleware for Role-Based Access Control (if needed)
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'user' => \App\Http\Middleware\UserMiddleware::class,
     ];
 }

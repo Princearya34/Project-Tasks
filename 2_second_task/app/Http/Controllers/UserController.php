@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Project;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,25 +15,32 @@ class UserController extends Controller
      * Display a listing of users with pagination.
      */
     public function index(Request $request)
-    {
-        $perPage = $request->input('per_page', 10);
-        $users = User::latest()->paginate($perPage);
-        return view('users.index', compact('users'));
-    }
+{
+    $perPage = $request->input('per_page', 5); // Default is 5
+    $users = User::latest()->paginate($perPage);
+    return view('users.index', compact('users'));
+}
 
     /**
      * Display the specified user along with unassigned projects.
      */
     public function show(User $user)
     {
-        // Get assigned project IDs
         $assignedProjectIds = $user->projects()->pluck('projects.id')->toArray();
-
-        // Fetch only projects that are NOT assigned to this user
         $projects = Project::whereNotIn('id', $assignedProjectIds)->get();
 
         return view('users.show', compact('user', 'projects'));
     }
+
+    public function profile()
+{
+    $user = auth()->user()->load('projects.tasks'); // Load projects along with their tasks
+
+    // Get all tasks from assigned projects
+    $tasks = $user->projects->flatMap->tasks; 
+
+    return view('users.profile', compact('user', 'tasks'));
+}
 
     /**
      * Show the form for creating a new user.
@@ -55,16 +63,11 @@ class UserController extends Controller
             'image'    => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
-        // Handle file upload
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('user_images', 'public');
-            $validatedData['image'] = $imagePath;  // Save path in DB
+            $validatedData['image'] = $request->file('image')->store('user_images', 'public');
         }
 
-        // Hash password
         $validatedData['password'] = Hash::make($request->password);
-
-        // Create user
         User::create($validatedData);
 
         return redirect()->route('users.index')->with('success', 'User created successfully!');
@@ -91,24 +94,19 @@ class UserController extends Controller
             'image'    => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
-        // Handle file upload
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($user->image && Storage::disk('public')->exists($user->image)) {
                 Storage::disk('public')->delete($user->image);
             }
-            $imagePath = $request->file('image')->store('user_images', 'public');
-            $validatedData['image'] = $imagePath;  // Save new path in DB
+            $validatedData['image'] = $request->file('image')->store('user_images', 'public');
         }
 
-        // Hash password if provided
         if ($request->filled('password')) {
             $validatedData['password'] = Hash::make($request->password);
         } else {
             unset($validatedData['password']);
         }
 
-        // Update user
         $user->update($validatedData);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
@@ -119,12 +117,10 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // Delete image if exists
         if ($user->image && Storage::disk('public')->exists($user->image)) {
             Storage::disk('public')->delete($user->image);
         }
 
-        // Delete user
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');
@@ -139,12 +135,32 @@ class UserController extends Controller
             'project_id' => ['required', 'exists:projects,id'],
         ]);
 
-        // Ensure projects are loaded before checking contains()
         $user->load('projects');
-
-        // Assign project without duplicating existing assignments
         $user->projects()->syncWithoutDetaching([$request->project_id]);
 
         return redirect()->back()->with('success', 'Project assigned successfully!');
+    }
+
+    /**
+     * Show the role assignment form.
+     */
+    public function showAssignRole(User $user)
+    {
+        $roles = Role::all();
+        return view('users.assign-role', compact('user', 'roles'));
+    }
+
+    /**
+     * Assign a role to the user.
+     */
+    public function assignRole(Request $request, User $user)
+    {
+        $request->validate([
+            'role' => 'required|exists:roles,name',
+        ]);
+
+        $user->syncRoles([$request->role]);
+
+        return redirect()->route('users.index')->with('success', 'Role assigned successfully!');
     }
 }
