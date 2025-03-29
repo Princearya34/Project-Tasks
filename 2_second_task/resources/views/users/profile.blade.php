@@ -2,98 +2,61 @@
 
 @section('content')
 <div class="container">
-    <div class="card shadow-sm p-4">
-        <h2 class="mb-4">{{ $user->name }}'s Profile</h2>
-
-        <div class="text-center mb-4">
-            <img src="{{ asset($user->image ? 'storage/'.$user->image : 'images/default-avatar.png') }}" 
-                 class="rounded-circle border" width="120" height="120" alt="User Avatar">
+    <div class="row">
+        <!-- User Details Section -->
+        <div class="col-md-4">
+            <div class="card shadow-lg p-4 text-center bg-light text-dark border border-secondary">
+                <img src="{{ asset($user->image ? 'storage/'.$user->image : 'images/default-avatar.png') }}" 
+                     class="rounded-circle border border-dark mx-auto d-block mb-3" width="120" height="120" alt="User Avatar">
+                <h4 class="text-dark fw-bold">{{ $user->name }}</h4>
+                <p class="text-muted">
+                    <i class="fas fa-envelope text-primary"></i> {{ $user->email }}
+                </p>
+                <p class="text-muted">
+                    <i class="fas fa-phone text-success"></i> {{ $user->phone ?? 'No phone number available' }}
+                </p>
+            </div>
         </div>
 
-        <h3 class="mb-3">Assigned Projects</h3>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Project Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <!-- Assigned Projects Section -->
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4 border-light bg-white text-dark">
+                <h3 class="mb-3 text-dark"><i class="fas fa-project-diagram"></i> Assigned Projects</h3>
+                <div class="accordion" id="projectsAccordion">
                     @forelse($user->projects as $project)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $project->name }}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm view-tasks-btn" data-bs-toggle="collapse" 
-                                        data-bs-target="#tasks-{{ $project->id }}">
-                                    View Tasks
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading-{{ $project->id }}">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $project->id }}">
+                                    <i class="fas fa-folder me-2"></i> {{ $project->name }}
                                 </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">
-                                <div class="collapse" id="tasks-{{ $project->id }}">
-                                    <div class="card card-body">
-                                        <h5 class="mb-3">Tasks for {{ $project->name }}</h5>
-                                        <table class="table table-hover">
-                                            <thead class="table-secondary">
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Task Title</th>
-                                                    <th>Description</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse($project->tasks as $task)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        <td><strong>{{ $task->title }}</strong></td>
-                                                        <td>{{ $task->description }}</td>
-                                                        <td>
-                                                            @if($task->status === 'pending')
-                                                                <span class="badge bg-warning text-dark">Pending</span>
-                                                            @elseif($task->status === 'in_progress')
-                                                                <span class="badge bg-primary">In Progress</span>
-                                                            @elseif($task->status === 'completed')
-                                                                <span class="badge bg-success">Completed</span>
-                                                            @else
-                                                                <span class="badge bg-secondary">{{ ucfirst($task->status) }}</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="4" class="text-center text-muted">No tasks assigned to this project.</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
+                            </h2>
+                            <div id="collapse-{{ $project->id }}" class="accordion-collapse collapse" data-bs-parent="#projectsAccordion">
+                                <div class="accordion-body">
+                                    <h5 class="mb-3 text-dark"><i class="fas fa-tasks"></i> Tasks for {{ $project->name }}</h5>
+                                    <div class="list-group">
+                                        @forelse($project->tasks as $task)
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1 text-dark"><i class="fas fa-thumbtack text-primary"></i> {{ $task->title }}</h6>
+                                                    <p class="mb-1 text-muted">{{ $task->description }}</p>
+                                                </div>
+                                                <span class="badge {{ $task->status === 'Pending' ? 'bg-warning' : ($task->status === 'In Progress' ? 'bg-info' : 'bg-success') }}">
+                                                    {{ ucfirst($task->status) }}
+                                                </span>
+                                            </div>
+                                        @empty
+                                            <p class="text-center text-muted">No tasks assigned to this project.</p>
+                                        @endforelse
                                     </div>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     @empty
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">No projects assigned.</td>
-                        </tr>
+                        <p class="text-center text-muted">No projects assigned.</p>
                     @endforelse
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<!-- Bootstrap JavaScript (Ensure Bootstrap is included in your layout) -->
-<script>
-    document.querySelectorAll('.view-tasks-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-bs-target');
-            const targetElement = document.querySelector(targetId);
-            targetElement.classList.toggle('show');
-        });
-    });
-</script>
 @endsection

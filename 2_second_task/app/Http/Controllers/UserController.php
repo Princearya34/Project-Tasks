@@ -14,12 +14,13 @@ class UserController extends Controller
     /**
      * Display a listing of users with pagination.
      */
-    public function index(Request $request)
+    public function index()
 {
-    $perPage = $request->input('per_page', 5); // Default is 5
-    $users = User::latest()->paginate($perPage);
+    $users = User::with('roles')->orderBy('created_at', 'desc')->get(); // Use get() instead of paginate()
+
     return view('users.index', compact('users'));
 }
+
 
     /**
      * Display the specified user along with unassigned projects.

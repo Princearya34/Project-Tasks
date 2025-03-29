@@ -5,12 +5,15 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 // Public Home Route
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store']);
 // Authenticated Routes (For Verified Users)
 Route::middleware(['auth', 'verified'])->group(function () {
     // Normal User & Admin Dashboard

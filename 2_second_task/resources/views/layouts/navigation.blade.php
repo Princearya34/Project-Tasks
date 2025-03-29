@@ -12,23 +12,23 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="no-underline">
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
                     @auth
                         @role('admin')
-                            <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                            <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" class="no-underline">
                                 {{ __('Manage Users') }}
                             </x-nav-link>
 
-                            <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
+                            <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="no-underline">
                                 {{ __('Manage Projects') }}
                             </x-nav-link>
                         @endrole
 
                         @role('user')
-                            <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
+                            <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="no-underline">
                                 {{ __('My Projects') }}
                             </x-nav-link>
                         @endrole
@@ -53,7 +53,7 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
+                            <x-dropdown-link :href="route('profile.edit')" class="no-underline">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
@@ -63,7 +63,7 @@
 
                                 <x-dropdown-link :href="route('logout')"
                                         onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
+                                                    this.closest('form').submit();" class="no-underline">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </form>
@@ -87,23 +87,23 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="no-underline">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
             @auth
                 @role('admin')
-                    <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" class="no-underline">
                         {{ __('Manage Users') }}
                     </x-responsive-nav-link>
 
-                    <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
+                    <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="no-underline">
                         {{ __('Manage Projects') }}
                     </x-responsive-nav-link>
                 @endrole
 
                 @role('user')
-                    <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
+                    <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="no-underline">
                         {{ __('My Projects') }}
                     </x-responsive-nav-link>
                 @endrole
@@ -119,7 +119,7 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link :href="route('profile.edit')">
+                    <x-responsive-nav-link :href="route('profile.edit')" class="no-underline">
                         {{ __('Profile') }}
                     </x-responsive-nav-link>
 
@@ -129,7 +129,7 @@
 
                         <x-responsive-nav-link :href="route('logout')"
                                 onclick="event.preventDefault();
-                                            this.closest('form').submit();">
+                                            this.closest('form').submit();" class="no-underline">
                             {{ __('Log Out') }}
                         </x-responsive-nav-link>
                     </form>
@@ -138,3 +138,10 @@
         @endauth
     </div>
 </nav>
+
+<!-- Custom CSS to Remove Underlines -->
+<style>
+    .no-underline {
+        text-decoration: none !important;
+    }
+</style>

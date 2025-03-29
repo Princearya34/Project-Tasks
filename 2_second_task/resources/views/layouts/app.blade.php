@@ -86,13 +86,13 @@
 
         <script>
             $(document).ready(function() {
-                // ✅ Initialize DataTable
-                $('.datatable').DataTable({
-                    "paging": true,          
-                    "lengthChange": true,    
-                    "searching": true,       
-                    "ordering": true,        
-                    "info": true,            
+                // ✅ Initialize DataTable globally
+                $('table.datatable').DataTable({
+                    "paging": true,          // Enable pagination
+                    "lengthMenu": [5, 10, 25, 50], // Show entries options
+                    "searching": true,       // Enable search box
+                    "ordering": true,        // Enable column sorting
+                    "info": true,            // Show table info
                     "autoWidth": false,      
                     "responsive": true       
                 });
@@ -117,5 +117,8 @@
                 });
             });
         </script>
+
+        <!-- Support for additional scripts -->
+        @stack('scripts')
     </body>
 </html>
