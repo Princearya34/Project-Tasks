@@ -23,7 +23,8 @@ class User extends Authenticatable
         'email',
         'phone',
         'image',
-        'password', // Ensure password is fillable
+        'password',
+        'remember_token', // Ensure password is fillable
     ];
 
     /**

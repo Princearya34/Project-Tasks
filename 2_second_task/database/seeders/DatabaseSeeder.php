@@ -5,24 +5,29 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
         // Create roles if they don't exist
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $superAdminRole = Role::firstOrCreate(['name' => 'admin']); // Super Admin
         $userRole = Role::firstOrCreate(['name' => 'user']);
 
-        // Create an admin user and assign role
+        // Assign all permissions to Super Admin
+        $allPermissions = Permission::pluck('name')->toArray();
+        $superAdminRole->syncPermissions($allPermissions);
+
+        // Create an admin user and assign the Super Admin role
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'Admin User',
+                'name' => 'Super Admin',
                 'password' => bcrypt('password'),
             ]
         );
-        $admin->assignRole($adminRole);
+        $admin->assignRole($superAdminRole);
 
         // Create a normal user and assign role
         $user = User::firstOrCreate(

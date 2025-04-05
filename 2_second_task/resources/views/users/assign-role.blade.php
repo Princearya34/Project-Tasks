@@ -17,8 +17,11 @@
         <div class="mb-3">
             <label for="role" class="form-label">Select Role</label>
             <select name="role" id="role" class="form-control">
-                <option value="admin" {{ $user->hasRole('admin') ? 'selected' : '' }}>Admin</option>
-                <option value="user" {{ $user->hasRole('user') ? 'selected' : '' }}>User</option>
+                @foreach(\Spatie\Permission\Models\Role::all() as $role)
+                    <option value="{{ $role->name }}" {{ $user->hasRole($role->name) ? 'selected' : '' }}>
+                        {{ ucfirst($role->name) }}
+                    </option>
+                @endforeach
             </select>
         </div>
 

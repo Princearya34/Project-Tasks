@@ -58,20 +58,6 @@
     <!-- Assign New Project -->
     <h4 class="mt-4">Assign New Project</h4>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form action="{{ route('users.assignProject', $user) }}" method="POST">
         @csrf
         <div class="input-group mb-3">
@@ -95,5 +81,4 @@
         border-radius: 0;
     }
 </style>
-
 @endsection
